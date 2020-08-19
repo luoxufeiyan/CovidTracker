@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -48,12 +47,12 @@ public class DetailActivity extends AppCompatActivity {
                 DecimalFormat df = new DecimalFormat( "#,###,###,###" );
                 setTitle(country.getCountryCode());
                 mCountry.setText(country.getCountry());
-                mNewCases.setText(String.valueOf(country.getNewConfirmed()));
-                mTotalCases.setText(String.valueOf(country.getTotalConfirmed()));
-                mNewDeaths.setText(String.valueOf(country.getNewDeaths()));
-                mTotalDeaths.setText(String.valueOf(country.getTotalDeaths()));
-                mNewRecovered.setText(String.valueOf(country.getNewRecovered()));
-                mTotalRecovered.setText(String.valueOf(country.getTotalRecovered()));
+                mNewCases.setText(df.format(country.getNewConfirmed()));
+                mTotalCases.setText(df.format(country.getTotalConfirmed()));
+                mNewDeaths.setText(df.format(country.getNewDeaths()));
+                mTotalDeaths.setText(df.format(country.getTotalDeaths()));
+                mNewRecovered.setText(df.format(country.getNewRecovered()));
+                mTotalRecovered.setText(df.format(country.getTotalRecovered()));
                 mSearch.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
