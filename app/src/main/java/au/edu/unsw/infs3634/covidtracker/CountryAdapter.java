@@ -3,6 +3,8 @@ package au.edu.unsw.infs3634.covidtracker;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,14 +12,50 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
-public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryViewHolder> {
+public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryViewHolder> implements Filterable {
+    public static final int SORT_METHOD_NEW = 1;
+    public static final int SORT_METHOD_TOTAL = 2;
     private ArrayList<Country> mCountries;
+    private ArrayList<Country> mCountriesFiltered;
     private RecyclerViewClickListener mListener;
 
     public CountryAdapter(ArrayList<Country> countries, RecyclerViewClickListener listener) {
         mCountries = countries;
+        mCountriesFiltered = countries;
         mListener = listener;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String charString = constraint.toString();
+                if(charString.isEmpty()) {
+                    mCountriesFiltered = mCountries;
+                } else {
+                    ArrayList<Country> filteredList = new ArrayList<>();
+                    for(Country country : mCountries) {
+                        if(country.getCountry().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(country);
+                        }
+                    }
+                    mCountriesFiltered = filteredList;
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = mCountriesFiltered;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                mCountriesFiltered = (ArrayList<Country>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public interface RecyclerViewClickListener {
@@ -33,7 +71,7 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
 
     @Override
     public void onBindViewHolder(@NonNull CountryViewHolder holder, int position) {
-        Country country = mCountries.get(position);
+        Country country = mCountriesFiltered.get(position);
         DecimalFormat df = new DecimalFormat( "#,###,###,###" );
         holder.country.setText(country.getCountry());
         holder.totalCases.setText(df.format(country.getTotalConfirmed()));
@@ -43,7 +81,7 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
 
     @Override
     public int getItemCount() {
-        return mCountries.size();
+        return mCountriesFiltered.size();
     }
 
     public static class CountryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -63,5 +101,22 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
         public void onClick(View v) {
             listener.onClick(v, (String) v.getTag());
         }
+    }
+
+    public void sort(final int sortMethod) {
+        if (mCountriesFiltered.size() > 0) {
+            Collections.sort(mCountriesFiltered, new Comparator<Country>() {
+                @Override
+                public int compare(Country o1, Country o2) {
+                    if(sortMethod == SORT_METHOD_NEW) {
+                        return o2.getNewConfirmed().compareTo(o1.getNewConfirmed());
+                    } else if(sortMethod == SORT_METHOD_TOTAL) {
+                        return o2.getTotalConfirmed().compareTo(o1.getTotalConfirmed());
+                    }
+                    return o2.getTotalConfirmed().compareTo(o1.getTotalConfirmed());
+                }
+            });
+        }
+        notifyDataSetChanged();
     }
 }
