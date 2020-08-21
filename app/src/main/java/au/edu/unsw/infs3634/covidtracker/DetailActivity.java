@@ -9,8 +9,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
     public static final String INTENT_MESSAGE = "au.edu.unsw.infs3634.covidtracker.intent_message";
@@ -41,7 +44,9 @@ public class DetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String countryCode = intent.getStringExtra(INTENT_MESSAGE);
 
-        ArrayList<Country> countries = Country.getCountries();
+        Gson gson = new Gson();
+        Response response = gson.fromJson(Response.json, Response.class);
+        List<Country> countries = response.getCountries();
         for(final Country country : countries) {
             if(country.getCountryCode().equals(countryCode)) {
                 DecimalFormat df = new DecimalFormat( "#,###,###,###" );

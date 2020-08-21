@@ -13,6 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SearchView;
 
+import com.google.gson.Gson;
+
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private CountryAdapter mAdapter;
@@ -30,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
                 launchDetailActivity(countryCode);
             }
         };
-        mAdapter = new CountryAdapter(Country.getCountries(), listener);
+
+        Gson gson = new Gson();
+        Response response = gson.fromJson(Response.json, Response.class);
+        mAdapter = new CountryAdapter(response.getCountries(), listener);
+        mAdapter.sort(CountryAdapter.SORT_METHOD_TOTAL);
         mRecyclerView.setAdapter(mAdapter);
     }
 
