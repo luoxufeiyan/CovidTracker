@@ -104,6 +104,12 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
         }
     }
 
+    public void setData(List<Country> data) {
+        mCountriesFiltered.clear();
+        mCountriesFiltered.addAll(data);
+        notifyDataSetChanged();
+    }
+
     public void sort(final int sortMethod) {
         if (mCountriesFiltered.size() > 0) {
             Collections.sort(mCountriesFiltered, new Comparator<Country>() {

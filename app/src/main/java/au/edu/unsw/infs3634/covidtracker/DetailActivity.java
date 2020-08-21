@@ -9,15 +9,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DetailActivity extends AppCompatActivity {
     public static final String INTENT_MESSAGE = "au.edu.unsw.infs3634.covidtracker.intent_message";
 
+    private String mCountryCode;
     private TextView mCountry;
     private TextView mNewCases;
     private TextView mTotalCases;
@@ -42,30 +45,45 @@ public class DetailActivity extends AppCompatActivity {
         mSearch = findViewById(R.id.ivSearch);
 
         Intent intent = getIntent();
-        String countryCode = intent.getStringExtra(INTENT_MESSAGE);
+        mCountryCode = intent.getStringExtra(INTENT_MESSAGE);
 
-        Gson gson = new Gson();
-        Response response = gson.fromJson(Response.json, Response.class);
-        List<Country> countries = response.getCountries();
-        for(final Country country : countries) {
-            if(country.getCountryCode().equals(countryCode)) {
-                DecimalFormat df = new DecimalFormat( "#,###,###,###" );
-                setTitle(country.getCountryCode());
-                mCountry.setText(country.getCountry());
-                mNewCases.setText(df.format(country.getNewConfirmed()));
-                mTotalCases.setText(df.format(country.getTotalConfirmed()));
-                mNewDeaths.setText(df.format(country.getNewDeaths()));
-                mTotalDeaths.setText(df.format(country.getTotalDeaths()));
-                mNewRecovered.setText(df.format(country.getNewRecovered()));
-                mTotalRecovered.setText(df.format(country.getTotalRecovered()));
-                mSearch.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        searchCountry(country.getCountry());
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.covid19api.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        CovidService service = retrofit.create(CovidService.class);
+        Call<Response> responseCall = service.getResponse();
+        responseCall.enqueue(new Callback<Response>() {
+            @Override
+            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                List<Country> countries = response.body().getCountries();
+                for(final Country country : countries) {
+                    if(country.getCountryCode().equals(mCountryCode)) {
+                        DecimalFormat df = new DecimalFormat( "#,###,###,###" );
+                        setTitle(country.getCountryCode());
+                        mCountry.setText(country.getCountry());
+                        mNewCases.setText(df.format(country.getNewConfirmed()));
+                        mTotalCases.setText(df.format(country.getTotalConfirmed()));
+                        mNewDeaths.setText(df.format(country.getNewDeaths()));
+                        mTotalDeaths.setText(df.format(country.getTotalDeaths()));
+                        mNewRecovered.setText(df.format(country.getNewRecovered()));
+                        mTotalRecovered.setText(df.format(country.getTotalRecovered()));
+                        mSearch.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                searchCountry(country.getCountry());
+                            }
+                        });
                     }
-                });
+                }
             }
-        }
+
+            @Override
+            public void onFailure(Call<Response> call, Throwable t) {
+
+            }
+        });
+
     }
 
     private void searchCountry(String country) {
