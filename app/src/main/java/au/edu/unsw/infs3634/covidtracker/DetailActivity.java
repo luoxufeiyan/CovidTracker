@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,6 +28,7 @@ public class DetailActivity extends AppCompatActivity {
     public static final String INTENT_MESSAGE = "au.edu.unsw.infs3634.covidtracker.intent_message";
 
     private CountryDatabase mDb;
+    private ImageView mFlag;
     private String mCountryCode;
     private TextView mCountry;
     private TextView mNewCases;
@@ -43,6 +45,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        mFlag = findViewById(R.id.ivFlag);
         mCountry = findViewById(R.id.tvCountry);
         mNewCases = findViewById(R.id.tvNewCases);
         mTotalCases = findViewById(R.id.tvTotalCases);
@@ -55,6 +58,11 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         mCountryCode = intent.getStringExtra(INTENT_MESSAGE);
+
+        Glide.with(this)
+                .load("https://www.countryflags.io/" + mCountryCode.toLowerCase() + "/flat/64.png")
+                .fitCenter()
+                .into((ImageView) mFlag);
 
         mDb = Room.databaseBuilder(getApplicationContext(), CountryDatabase.class, "country-database").build();
         Executors.newSingleThreadExecutor().execute(new Runnable() {
