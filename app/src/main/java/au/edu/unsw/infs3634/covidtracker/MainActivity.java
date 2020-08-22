@@ -1,5 +1,6 @@
 package au.edu.unsw.infs3634.covidtracker;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -11,6 +12,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +81,27 @@ public class MainActivity extends AppCompatActivity {
                 });
                 mAdapter.setData(countries);
                 mAdapter.sort(CountryAdapter.SORT_METHOD_TOTAL);
+
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference messageRef = database.getReference(FirebaseAuth.getInstance().getUid());
+                messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String result = (String) snapshot.getValue();
+                        if(result != null) {
+                            for(Country home : countries) {
+                                if(home.getCountryCode().equals(result)) {
+                                    Toast.makeText(MainActivity.this, home.getNewConfirmed() + " new cases in " + home.getCountry(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
 
             @Override
