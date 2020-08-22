@@ -2,6 +2,7 @@ package au.edu.unsw.infs3634.covidtracker;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,6 +24,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private CountryAdapter mAdapter;
+    private CountryDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
         mAdapter = new CountryAdapter(new ArrayList<Country>(), listener);
         mRecyclerView.setAdapter(mAdapter);
+        mDb = Room.databaseBuilder(getApplicationContext(), CountryDatabase.class, "country-database").build();
+
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.setData(mDb.countryDao().getCountries());
+                mAdapter.sort(CountryAdapter.SORT_METHOD_TOTAL);
+            }
+        });
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.covid19api.com/")
@@ -50,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 List<Country> countries = response.body().getCountries();
+
+                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDb.countryDao().deleteAll(mDb.countryDao().getCountries().toArray(new Country[0]));
+                        mDb.countryDao().insertAll(countries.toArray(new Country[0]));
+                    }
+                });
                 mAdapter.setData(countries);
                 mAdapter.sort(CountryAdapter.SORT_METHOD_TOTAL);
             }
