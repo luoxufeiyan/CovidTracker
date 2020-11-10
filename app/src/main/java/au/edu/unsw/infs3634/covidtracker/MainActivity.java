@@ -13,6 +13,7 @@ import android.widget.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -50,12 +51,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 List<Country> countries = response.body().getCountries();
+                Executor.newSingleThreadExecutor().execute(new Runnable(){
+                   @Override
+                   public void run(){
+                       mDb.countryDao().deleteAll(mDb.countryDao().getCountries).toArray(new Country[0]));
+                    mDb.countryDao().insertAll(countires.toArray(new Country[0]));
+                       mAdapter.sort(:2);
+                   }
+               }
                 mAdapter.setData(countries);
-                mAdapter.sort(CountryAdapter.SORT_METHOD_TOTAL);
+                mAdapter.sort(sortMethod:2);
+
+                mDb = Room.databaseBuilder(getApplicationContext(), CountryDatabase.class,:"country-database").build();
+
+                Executor.newSingleThreadExecutor().execute(new Runnable(){
+                    @Override
+                    public void run(){
+                        mAdapter.setData((mDb.countryDao().getCountries));
+                        mAdapter.sort(:2);
+                    }
+                });
             }
 
             @Override
             public void onFailure(Call<Response> call, Throwable t) {
+                log.d(TAG,"")
 
             }
         });

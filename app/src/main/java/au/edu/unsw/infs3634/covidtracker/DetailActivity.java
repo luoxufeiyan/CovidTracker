@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,9 +44,33 @@ public class DetailActivity extends AppCompatActivity {
         mNewRecovered = findViewById(R.id.tvNewRecovered);
         mTotalRecovered = findViewById(R.id.tvTotalRecovered);
         mSearch = findViewById(R.id.ivSearch);
+        mFlag = findViewById(R.id.ivFlag);
 
         Intent intent = getIntent();
+        final String countryCode = intent.getStringExtra(INTENT_MESSAGE);
+        Glide.with(DetailActivity.this).load(:"https://www.countryflags.io/"+countryCode+"/shiny/64.png").into(mFlag);
+
+        mDb = Room.databaseBuilder(getApplicationContext(),CountryDatabase.class,"country-database").build();
+        Executor.newSingleThreadExecutor().execute(new Runnable(){
+            @Override
+
+            public void run(){
+                Country country = mDb.countryDao().getCountry(countryCode);
+                DecimalFormat df = new DecimalFormat( "#,###,###,###" );
+                setTitle(country.getCountryCode());
+                mCountry.setText(country.getCountry());
+                mNewCases.setText(df.format(country.getNewConfirmed()));
+                mTotalCases.setText(df.format(country.getTotalConfirmed()));
+                mNewDeaths.setText(df.format(country.getNewDeaths()));
+                mTotalDeaths.setText(df.format(country.getTotalDeaths()));
+                mNewRecovered.setText(df.format(country.getNewRecovered()));
+                mTotalRecovered.setText(df.format(country.getTotalRecovered()));
+                mSearch.setOnClickListener(new View.OnClickListener() {
+
+                }
+                                                   }
         mCountryCode = intent.getStringExtra(INTENT_MESSAGE);
+            Glide.with(activity)
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.covid19api.com")
