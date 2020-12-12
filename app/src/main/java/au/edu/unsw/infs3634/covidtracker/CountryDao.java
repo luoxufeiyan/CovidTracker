@@ -1,25 +1,23 @@
 package au.edu.unsw.infs3634.covidtracker;
 
-import java.util.List;
-
-
 import androidx.room.Dao;
-import androidx.room.Query;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.Query;
 
+import java.util.List;
 
 @Dao
 public interface CountryDao {
     @Query("SELECT * FROM country")
     List<Country> getCountries();
 
-    @Query("Select * FROM country Where countryCode == :countryCode");
-    country getCountry (String countryCode);
+    @Query("SELECT * FROM country WHERE countryCode == :countryCode")
+    Country getCountry(String countryCode);
 
     @Insert
-    void insertAll(Country...countries);
+    void insertAll(Country... countries);
 
     @Delete
-    void deleteAll(Country...countries);
+    void deleteAll(Country... countries);
 }

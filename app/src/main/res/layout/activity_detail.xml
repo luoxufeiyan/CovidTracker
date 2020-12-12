@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/ivFlag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
         android:layout_marginTop="32dp"
@@ -32,9 +32,10 @@
         android:id="@+id/tvNewCasesDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
         android:text="New cases"
         app:layout_constraintStart_toStartOf="@+id/ivFlag"
-        app:layout_constraintTop_toBottomOf="@+id/ivSearch" />
+        app:layout_constraintTop_toBottomOf="@+id/tvCountry" />
 
     <TextView
         android:id="@+id/tvNewCases"
@@ -125,12 +126,24 @@
         app:layout_constraintStart_toEndOf="@+id/tvTotalRecoveredDesc"
         app:layout_constraintTop_toTopOf="@+id/tvTotalRecoveredDesc" />
 
-    <ImageView
+    <CheckBox
+        android:id="@+id/cbHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Home country"
+        app:layout_constraintStart_toStartOf="@+id/tvTotalRecoveredDesc"
+        app:layout_constraintTop_toBottomOf="@+id/tvTotalRecoveredDesc" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/ivSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@+id/tvCountry"
-        app:layout_constraintTop_toBottomOf="@+id/tvCountry"
-        app:srcCompat="@android:drawable/ic_menu_search" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_action_search" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
